@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>🚦 Semáforo Nutricional — Computer Science</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f4f6fb;
+    color: #222;
+    padding: 0 0 40px;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%);
+    color: white;
+    padding: 40px 20px 32px;
+    text-align: center;
+  }
+  .header .badge {
+    display: inline-block;
+    background: rgba(243,156,18,.18);
+    border: 1px solid rgba(243,156,18,.4);
+    color: #f39c12;
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 4px 14px;
+    border-radius: 20px;
+    margin-bottom: 14px;
+  }
+  .header h1 { font-size: clamp(1.6rem, 4vw, 2.6rem); font-weight: 800; line-height: 1.2; }
+  .header h1 span { color: #f39c12; }
+  .header p { color: #aab; font-size: .95rem; margin-top: 10px; max-width: 560px; margin-left: auto; margin-right: auto; }
+
+  /* ── LAYOUT ── */
+  .container { max-width: 1080px; margin: 0 auto; padding: 0 16px; }
+
+  .section-title {
+    font-size: .72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #999;
+    margin-bottom: 14px;
+    margin-top: 36px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e5e5e5;
+  }
+
+  /* ── CARD ── */
+  .card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.07);
+    margin-bottom: 20px;
+  }
+  .card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 16px; color: #111; }
+
+  /* ── GRID ── */
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 700px) {
+    .grid-3, .grid-2 { grid-template-columns: 1fr; }
+  }
+
+  /* ── FORM ── */
+  label { display: block; font-size: .82rem; font-weight: 600; color: #555; margin-bottom: 5px; }
+  input[type="text"], input[type="number"] {
+    width: 100%;
+    background: #f8f9fc;
+    border: 1.5px solid #e0e4ee;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: .93rem;
+    color: #111;
+    outline: none;
+    transition: border-color .2s;
+  }
+  input:focus { border-color: #e67e22; }
+  input::placeholder { color: #bbb; }
+
+  .btn {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+    color: #fff;
+    font-weight: 700;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 24px;
+    font-size: .95rem;
+    cursor: pointer;
+    width: 100%;
+    transition: opacity .2s, transform .1s;
+    margin-top: 4px;
+  }
+  .btn:hover { opacity: .88; }
+  .btn:active { transform: scale(.98); }
+
+  /* ── SEMÁFORO ── */
+  .semaforo-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+  .semaforo {
+    background: #1a1a1a;
+    border-radius: 60px;
+    padding: 18px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    box-shadow: 0 8px 32px rgba(0,0,0,.25);
+    border: 3px solid #111;
+  }
+  .luz {
+    width: 62px; height: 62px;
+    border-radius: 50%;
+    background: #2a2a2a;
+    border: 2px solid #111;
+    transition: all .5s;
+  }
+  .luz.on-r { background:#e74c3c; box-shadow:0 0 24px #e74c3c,0 0 50px rgba(231,76,60,.4); }
+  .luz.on-a { background:#f39c12; box-shadow:0 0 24px #f39c12,0 0 50px rgba(243,156,18,.4); }
+  .luz.on-v { background:#27ae60; box-shadow:0 0 24px #27ae60,0 0 50px rgba(39,174,96,.4); }
+
+  .result-panel { text-align: center; }
+  .result-pct { font-size: 3rem; font-weight: 900; line-height: 1; }
+  .result-sub { font-size: .78rem; color: #888; margin-top: 4px; margin-bottom: 14px; }
+  .result-row { font-size: .88rem; color: #444; margin: 4px 0; }
+  .result-row strong { color: #111; }
+
+  .progress-wrap { margin: 12px 0; }
+  .progress-bg { background: #eee; border-radius: 20px; height: 12px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 20px; transition: width .8s, background .5s; width: 0; }
+  .progress-labels { display: flex; justify-content: space-between; font-size: .7rem; color: #aaa; margin-top: 3px; }
+
+  .spoon-grid { display: flex; flex-wrap: wrap; gap: 3px; justify-content: center; margin: 8px 0; }
+  .spoon { font-size: 1.3rem; }
+
+  .alert-box { padding: 12px 16px; border-radius: 10px; font-weight: 700; font-size: .88rem; margin-top: 10px; }
+  .al-v { background: #eafaf1; border: 1.5px solid #27ae60; color: #1e8449; }
+  .al-a { background: #fef9e7; border: 1.5px solid #f39c12; color: #b7770d; }
+  .al-r { background: #fdedec; border: 1.5px solid #e74c3c; color: #c0392b; }
+
+  .placeholder { color: #bbb; font-size: .88rem; text-align: center; padding: 30px 0; }
+
+  /* ── HISTORIAL ── */
+  .bev-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 14px; background: #f8f9fc; border-radius: 10px;
+    margin-bottom: 8px; border-left: 4px solid #ddd; font-size: .85rem;
+  }
+  .bev-item.bv { border-left-color: #27ae60; }
+  .bev-item.ba { border-left-color: #f39c12; }
+  .bev-item.br { border-left-color: #e74c3c; }
+  .chip { padding: 3px 10px; border-radius: 12px; font-size: .74rem; font-weight: 700; }
+  .chip.cv { background: #d5f5e3; color: #1e8449; }
+  .chip.ca { background: #fdebd0; color: #b7770d; }
+  .chip.cr { background: #fadbd8; color: #c0392b; }
+
+  .total-bar { background: #f0f4ff; border-radius: 12px; padding: 14px; margin-bottom: 12px; text-align: center; }
+  .total-g { font-size: 1.8rem; font-weight: 800; }
+
+  .btn-sm { background: #f0f4ff; border: 1.5px solid #dde4f5; border-radius: 8px; color: #888; padding: 7px 16px; cursor: pointer; font-size: .8rem; width: 100%; transition: all .2s; }
+  .btn-sm:hover { background: #e5ebfa; color: #555; }
+
+  /* ── DATOS REALES ── */
+  .bebida-preset {
+    cursor: pointer;
+    background: #f8f9fc;
+    border: 1.5px solid #e0e4ee;
+    border-radius: 12px;
+    padding: 14px;
+    text-align: center;
+    transition: all .2s;
+    font-size: .83rem;
+  }
+  .bebida-preset:hover { border-color: #f39c12; background: #fff8ee; }
+  .bebida-preset .bname { font-weight: 700; font-size: .9rem; color: #111; }
+  .bebida-preset .bdata { color: #888; margin-top: 4px; }
+  .bebida-preset .bchip { display: inline-block; margin-top: 6px; padding: 2px 10px; border-radius: 10px; font-size: .72rem; font-weight: 700; }
+
+  /* ── DATOS EXPERIMENTO ── */
+  .exp-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 14px; border-radius: 20px; font-size: .78rem; font-weight: 700; margin-bottom: 14px; }
+  .exp-badge.bio  { background: #eafaf1; color: #1e8449; }
+  .exp-badge.quim { background: #f4ecf7; color: #7d3c98; }
+  .exp-badge.fis  { background: #fef9e7; color: #b7770d; }
+
+  .data-table { width: 100%; border-collapse: collapse; font-size: .83rem; }
+  .data-table th { background: #f4f6fb; color: #777; font-size: .72rem; text-transform: uppercase; letter-spacing: 1px; padding: 9px 12px; text-align: left; border-bottom: 1px solid #eee; }
+  .data-table td { padding: 10px 12px; border-bottom: 1px solid #f0f0f0; color: #333; }
+  .data-table tr:hover td { background: #fafbff; }
+  .delta { font-weight: 700; }
+  .neg { color: #e74c3c; }
+  .pos { color: #27ae60; }
+
+  /* ── CHART ── */
+  .chart-wrap { position: relative; height: 220px; }
+
+  /* ── GAS SIM ── */
+  input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 5px; background: #e0e4ee; border-radius: 3px; outline: none; margin-top: 6px; }
+  input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #e67e22; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,.15); }
+  input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: #e67e22; cursor: pointer; border: none; }
+  .slider-val { font-weight: 700; color: #e67e22; font-size: 1rem; }
+  .slider-label { display: flex; justify-content: space-between; font-size: .7rem; color: #aaa; margin-top: 3px; }
+
+  .gas-pct { font-size: 3rem; font-weight: 900; color: #2980b9; line-height: 1; }
+  .gas-status { padding: 10px 16px; border-radius: 10px; font-size: .86rem; font-weight: 600; margin-top: 10px; }
+  .gs-ok  { background: #ebf5fb; border: 1.5px solid #2980b9; color: #1a5276; }
+  .gs-mid { background: #fef9e7; border: 1.5px solid #f39c12; color: #b7770d; }
+  .gs-bad { background: #fdedec; border: 1.5px solid #e74c3c; color: #c0392b; }
+
+  .formula-box { background: #f4f6fb; border-radius: 8px; padding: 10px 14px; font-family: monospace; font-size: .78rem; color: #888; margin-top: 10px; }
+
+  /* ── INFO FOOTER ── */
+  .info-strip {
+    background: #1a1a2e;
+    color: #aaa;
+    text-align: center;
+    padding: 18px 16px;
+    font-size: .78rem;
+    margin-top: 36px;
+  }
+  .info-strip strong { color: #f39c12; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="badge">Computer Science · IB Project</div>
+  <h1>🚦 <span>Semáforo</span> Nutricional</h1>
+  <p>Calculadora de azúcar con alertas visuales basadas en el límite diario de la OMS (25 g)</p>
+</div>
+
+<div class="container">
+
+  <!-- ══ BEBIDAS PREDEFINIDAS ══ -->
+  <div class="section-title">Bebidas de nuestro experimento — haz clic para cargar</div>
+  <div class="grid-3" id="presets-grid"></div>
+
+  <!-- ══ CALCULADORA ══ -->
+  <div class="section-title">Calculadora interactiva</div>
+  <div class="grid-2">
+
+    <!-- Formulario -->
+    <div class="card">
+      <h3>🥤 Introduce una bebida</h3>
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div>
+          <label>Nombre de la bebida</label>
+          <input type="text" id="inp-nombre" placeholder="ej. Coca-Cola" />
+        </div>
+        <div>
+          <label>Cantidad (ml)</label>
+          <input type="number" id="inp-ml" placeholder="ej. 330" min="1" />
+        </div>
+        <div>
+          <label>Gramos de azúcar</label>
+          <input type="number" id="inp-g" placeholder="ej. 35" min="0" step="0.1" />
+        </div>
+        <button class="btn" onclick="calcular()">Analizar →</button>
+      </div>
+      <div style="margin-top:16px;padding:12px 14px;background:#f8f9fc;border-radius:10px;font-size:.76rem;color:#888;line-height:1.7;">
+        <strong style="color:#555;">Límite OMS:</strong> 25 g de azúcar libre / día<br>
+        <strong style="color:#555;">1 cucharada</strong> ≈ 4 g de azúcar
+      </div>
+    </div>
+
+    <!-- Semáforo + resultado -->
+    <div class="card">
+      <h3>🚦 Resultado</h3>
+      <div class="semaforo-box">
+        <div class="semaforo">
+          <div class="luz" id="lr"></div>
+          <div class="luz" id="la"></div>
+          <div class="luz" id="lv"></div>
+        </div>
+        <div id="res-panel" style="width:100%;">
+          <div class="placeholder" id="res-placeholder">Introduce una bebida para ver el análisis</div>
+          <div id="res-content" style="display:none;" class="result-panel">
+            <div class="result-pct" id="res-pct"></div>
+            <div class="result-sub">del límite diario OMS</div>
+            <div class="progress-wrap">
+              <div class="progress-bg"><div class="progress-fill" id="prog-fill"></div></div>
+              <div class="progress-labels"><span>0 g</span><span>25 g (OMS)</span></div>
+            </div>
+            <div class="result-row"><strong id="res-g"></strong> g de azúcar = <strong id="res-c"></strong> cucharadas</div>
+            <div class="spoon-grid" id="spoon-grid"></div>
+            <div class="alert-box" id="alert-box"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ HISTORIAL ══ -->
+  <div class="section-title">Historial del día</div>
+  <div class="card">
+    <div id="total-dia" style="display:none;">
+      <div class="total-bar">
+        <div style="font-size:.72rem;color:#999;margin-bottom:4px;">Total acumulado</div>
+        <div class="total-g" id="total-g">0 g</div>
+        <div style="font-size:.78rem;margin-top:2px;" id="total-lbl"></div>
+        <div class="progress-wrap" style="margin-top:8px;">
+          <div class="progress-bg"><div class="progress-fill" id="prog-total"></div></div>
+        </div>
+      </div>
+    </div>
+    <div id="hist-lista"><div class="placeholder">Aún no has añadido bebidas</div></div>
+    <button class="btn-sm" onclick="limpiarHist()" style="margin-top:12px;">Limpiar historial</button>
+  </div>
+
+  <!-- ══ DATOS REALES DEL EXPERIMENTO ══ -->
+  <div class="section-title">Resultados reales de nuestros experimentos</div>
+  <div class="grid-3">
+
+    <!-- Biología -->
+    <div class="card">
+      <div class="exp-badge bio">🧬 Biología — Ósmosis</div>
+      <p style="font-size:.82rem;color:#666;margin-bottom:14px;">Masa de la patata antes y después de 3 días sumergida en cada bebida hipertónica.</p>
+      <table class="data-table">
+        <thead><tr><th>Bebida</th><th>Inicial (g)</th><th>Final (g)</th><th>Cambio</th></tr></thead>
+        <tbody>
+          <tr><td>Zumo fresa</td><td>23,066</td><td>21,88</td><td class="delta neg">−1,186 g</td></tr>
+          <tr><td>Coca-Cola</td><td>25,365</td><td>23,96</td><td class="delta neg">−1,405 g</td></tr>
+          <tr><td>Beb. energética</td><td>27,472</td><td>24,90</td><td class="delta neg">−2,572 g</td></tr>
+        </tbody>
+      </table>
+      <div style="margin-top:12px;padding:10px 12px;background:#eafaf1;border-radius:8px;font-size:.78rem;color:#1e8449;">
+        ✅ Todas las patatas perdieron masa → las 3 bebidas son hipertónicas. La bebida energética fue la más concentrada.
+      </div>
+    </div>
+
+    <!-- Química -->
+    <div class="card">
+      <div class="exp-badge quim">⚗️ Química — pH y esmalte</div>
+      <p style="font-size:.82rem;color:#666;margin-bottom:14px;">pH de las bebidas y masa de cáscaras de huevo antes/después de 3 días.</p>
+      <table class="data-table">
+        <thead><tr><th>Bebida</th><th>pH</th><th>Inicial (g)</th><th>Final (g)</th><th>Δ</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Coca-Cola</td>
+            <td><span style="color:#e74c3c;font-weight:700;">3</span></td>
+            <td>2,62</td><td>2,391</td>
+            <td class="delta neg">−0,229 g</td>
+          </tr>
+          <tr>
+            <td>Zumo fresa</td>
+            <td><span style="color:#e67e22;font-weight:700;">4</span></td>
+            <td>2,55</td><td>3,552</td>
+            <td class="delta pos">+1,002 g</td>
+          </tr>
+          <tr>
+            <td>Beb. energética</td>
+            <td><span style="color:#f39c12;font-weight:700;">5</span></td>
+            <td>2,88</td><td>4,618</td>
+            <td class="delta pos">+1,738 g</td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="margin-top:12px;padding:10px 12px;background:#fdedec;border-radius:8px;font-size:.78rem;color:#c0392b;">
+        ⚠️ Coca-Cola (pH 3) disolvió el CaCO₃ de la cáscara. Las 3 bebidas tiñeron la superficie, simulando manchas dentales.
+      </div>
+    </div>
+
+    <!-- Física -->
+    <div class="card">
+      <div class="exp-badge fis">⚡ Física — Viscosidad</div>
+      <p style="font-size:.82rem;color:#666;margin-bottom:14px;">Tiempo (s) que tardó la canica en recorrer 20 cm. A más azúcar → más viscoso → más lento.</p>
+      <table class="data-table">
+        <thead><tr><th>Bebida</th><th>M1</th><th>M2</th><th>M3</th><th>Media</th></tr></thead>
+        <tbody>
+          <tr><td>Agua</td><td>0,49</td><td>0,51</td><td>0,48</td><td><strong>0,49 s</strong></td></tr>
+          <tr><td>Zumo fresa</td><td>0,63</td><td>0,59</td><td>0,62</td><td><strong>0,61 s</strong></td></tr>
+          <tr><td>Beb. energética</td><td>0,68</td><td>0,66</td><td>0,70</td><td><strong>0,68 s</strong></td></tr>
+        </tbody>
+      </table>
+      <div style="margin-top:12px;padding:10px 12px;background:#fef9e7;border-radius:8px;font-size:.78rem;color:#b7770d;">
+        📊 v = d/t · La bebida energética fue la más viscosa → mayor concentración de azúcar disuelto.
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ GRÁFICAS ══ -->
+  <div class="section-title">Gráficas de los experimentos</div>
+  <div class="grid-2">
+    <div class="card">
+      <h3>Azúcar estimado por bebida (g/porción)</h3>
+      <div class="chart-wrap"><canvas id="chartAzucar"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>Viscosidad — Tiempo canica (s)</h3>
+      <div class="chart-wrap"><canvas id="chartVisco"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ══ GAS SIMULATOR ══ -->
+  <div class="section-title">Simulador de gas (Extra — conectado con Física)</div>
+  <div class="card">
+    <p style="font-size:.83rem;color:#888;margin-bottom:20px;">
+      Basado en la <strong>Ley de Henry</strong>: a mayor temperatura, el CO₂ disuelto escapa más rápido.
+      Fórmula: <code style="background:#f4f6fb;padding:2px 6px;border-radius:4px;">Gas(t,T) = 100 · e<sup>−k(T)·t</sup></code>
+      donde <code style="background:#f4f6fb;padding:2px 6px;border-radius:4px;">k(T) = 0.018 · e<sup>0.055·(T−20)</sup></code>
+    </p>
+    <div class="grid-2">
+      <div>
+        <div style="margin-bottom:22px;">
+          <label>🌡️ Temperatura: <span class="slider-val" id="val-t">20°C</span></label>
+          <input type="range" id="sl-t" min="0" max="50" value="20" oninput="gasUpdate()" />
+          <div class="slider-label"><span>0°C (nevera)</span><span>25°C (amb.)</span><span>50°C (caliente)</span></div>
+        </div>
+        <div>
+          <label>⏱️ Tiempo abierta: <span class="slider-val" id="val-m">0 min</span></label>
+          <input type="range" id="sl-m" min="0" max="120" value="0" oninput="gasUpdate()" />
+          <div class="slider-label"><span>Recién abierta</span><span>1 hora</span><span>2 horas</span></div>
+        </div>
+        <div class="formula-box" id="gas-formula" style="margin-top:18px;">—</div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:20px;flex-wrap:wrap;">
+        <!-- Botella SVG -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+          <svg width="60" height="145" viewBox="0 0 60 145">
+            <rect x="19" y="10" width="22" height="8" rx="3" fill="#bbb" stroke="#999" stroke-width="1"/>
+            <path d="M12 26 Q7 34 7 44 L7 130 Q7 140 17 140 L43 140 Q53 140 53 130 L53 44 Q53 34 48 26Z" fill="#ddeeff" stroke="#aaccee" stroke-width="1.5"/>
+            <clipPath id="bc"><path d="M12 26 Q7 34 7 44 L7 130 Q7 140 17 140 L43 140 Q53 140 53 130 L53 44 Q53 34 48 26Z"/></clipPath>
+            <rect id="bott-lvl" x="7" y="44" width="46" height="96" fill="#4fc3f7" opacity=".45" clip-path="url(#bc)"/>
+            <g id="bott-bub" opacity="1">
+              <circle cx="21" cy="100" r="2.5" fill="#2980b9" opacity=".5"/>
+              <circle cx="30" cy="82" r="2" fill="#2980b9" opacity=".4"/>
+              <circle cx="40" cy="110" r="3" fill="#2980b9" opacity=".45"/>
+              <circle cx="26" cy="68" r="1.5" fill="#2980b9" opacity=".35"/>
+              <circle cx="38" cy="93" r="2" fill="#2980b9" opacity=".5"/>
+            </g>
+            <rect x="18" y="6" width="24" height="7" rx="3" fill="#e67e22"/>
+          </svg>
+          <div style="font-size:.68rem;color:#aaa;">CO₂ restante</div>
+        </div>
+        <div style="flex:1;min-width:140px;">
+          <div class="gas-pct" id="gas-pct">100%</div>
+          <div style="font-size:.78rem;color:#888;margin-top:4px;">de carbonatación</div>
+          <div class="gas-status gs-ok" id="gas-st" style="margin-top:12px;">🫧 Perfectamente carbonatada</div>
+          <div style="margin-top:12px;font-size:.8rem;color:#888;" id="gas-detail">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<!-- FOOTER -->
+<div class="info-strip">
+  Proyecto de grupo · Bebidas Hipertónicas: Ciencia, Salud y Medio Ambiente ·
+  <strong>Computer Science</strong> — Semáforo Nutricional ·
+  Límite OMS: <strong>25 g</strong> azúcar libre/día
+</div>
+
+<script>
+// ── BEBIDAS PREDEFINIDAS (datos reales del experimento + valores estándar) ──
+const PRESETS = [
+  { nombre:'Coca-Cola',        ml:330,  g:35,   color:'#e74c3c', nota:'pH 3 · más ácida' },
+  { nombre:'Zumo fresa artif.',ml:250,  g:28,   color:'#e67e22', nota:'pH 4 · viscosidad media' },
+  { nombre:'Bebida energética',ml:500,  g:54,   color:'#9b59b6', nota:'pH 5 · más viscosa' },
+  { nombre:'Aquarius',         ml:500,  g:15,   color:'#27ae60', nota:'Isotónica' },
+  { nombre:'Red Bull',         ml:250,  g:27.5, color:'#c0392b', nota:'Energética 250ml' },
+  { nombre:'Agua',             ml:500,  g:0,    color:'#2980b9', nota:'Sin azúcar' },
+];
+
+function renderPresets() {
+  const grid = document.getElementById('presets-grid');
+  grid.innerHTML = '';
+  PRESETS.forEach(b => {
+    const pct = Math.round(b.g / 25 * 100);
+    const nivel = pct <= 50 ? '#27ae60' : pct <= 100 ? '#f39c12' : '#e74c3c';
+    const div = document.createElement('div');
+    div.className = 'bebida-preset';
+    div.innerHTML = `
+      <div class="bname">${b.nombre}</div>
+      <div class="bdata">${b.ml} ml · ${b.g} g azúcar</div>
+      <span class="bchip" style="background:${nivel}18;color:${nivel};border:1px solid ${nivel}44;">${pct}% OMS</span>
+      <div style="font-size:.7rem;color:#bbb;margin-top:4px;">${b.nota}</div>
+    `;
+    div.onclick = () => {
+      document.getElementById('inp-nombre').value = b.nombre;
+      document.getElementById('inp-ml').value = b.ml;
+      document.getElementById('inp-g').value = b.g;
+      calcular();
+    };
+    grid.appendChild(div);
+  });
+}
+renderPresets();
+
+// ── CALCULATOR ───────────────────────────────────────────────────────────────
+const OMS = 25, G_C = 4;
+let historial = [];
+
+function calcular() {
+  const nombre = document.getElementById('inp-nombre').value.trim() || 'Bebida';
+  const ml = parseFloat(document.getElementById('inp-ml').value);
+  const g  = parseFloat(document.getElementById('inp-g').value);
+  if (isNaN(ml) || isNaN(g) || ml <= 0 || g < 0) { alert('Introduce valores válidos.'); return; }
+  const cuch = Math.round(g / G_C * 10) / 10;
+  const pct  = Math.round(g / OMS * 100);
+  const nivel = pct <= 50 ? 'v' : pct <= 100 ? 'a' : 'r';
+  const clrs  = { v:'#27ae60', a:'#f39c12', r:'#e74c3c' };
+
+  // Semáforo
+  ['lr','la','lv'].forEach(id => document.getElementById(id).className = 'luz');
+  document.getElementById(nivel === 'v' ? 'lv' : nivel === 'a' ? 'la' : 'lr').classList.add(`on-${nivel}`);
+
+  // Resultado
+  document.getElementById('res-placeholder').style.display = 'none';
+  const rc = document.getElementById('res-content');
+  rc.style.display = 'block';
+  document.getElementById('res-pct').textContent = pct + '%';
+  document.getElementById('res-pct').style.color = clrs[nivel];
+  document.getElementById('res-g').textContent = g;
+  document.getElementById('res-c').textContent = cuch;
+  const pf = document.getElementById('prog-fill');
+  pf.style.width = Math.min(pct, 100) + '%';
+  pf.style.background = clrs[nivel];
+
+  // Cucharadas
+  const sg = document.getElementById('spoon-grid');
+  sg.innerHTML = '';
+  const n = Math.min(Math.ceil(cuch), 24);
+  for (let i=0; i<n; i++) {
+    const s = document.createElement('span');
+    s.className = 'spoon'; s.textContent = '🥄';
+    sg.appendChild(s);
+  }
+  if (Math.ceil(cuch) > 24) {
+    const s = document.createElement('span');
+    s.style.color = '#aaa'; s.style.fontSize = '.75rem';
+    s.textContent = `+${Math.ceil(cuch)-24} más`;
+    sg.appendChild(s);
+  }
+
+  // Alerta
+  const ab = document.getElementById('alert-box');
+  if (nivel === 'v') {
+    ab.className = 'alert-box al-v';
+    ab.textContent = `✅ Dentro del límite · ${g} g = ${cuch} cucharadas`;
+  } else if (nivel === 'a') {
+    ab.className = 'alert-box al-a';
+    ab.textContent = `⚠️ Atención · ${g} g = ${cuch} cucharadas. Cerca del límite.`;
+  } else {
+    ab.className = 'alert-box al-r';
+    ab.textContent = `🚨 ¡Cuidado! ${g} g = ${cuch} cucharadas. Supera el límite OMS.`;
+  }
+
+  historial.push({ nombre, ml, g, cuch, pct, nivel });
+  renderHist();
+}
+
+function renderHist() {
+  const lista = document.getElementById('hist-lista');
+  if (!historial.length) {
+    lista.innerHTML = '<div class="placeholder">Aún no has añadido bebidas</div>';
+    document.getElementById('total-dia').style.display = 'none';
+    return;
+  }
+  lista.innerHTML = historial.map(b => `
+    <div class="bev-item b${b.nivel}">
+      <div>
+        <div style="font-weight:700;color:#111;">${b.nombre}</div>
+        <div style="color:#888;font-size:.75rem;">${b.ml} ml · ${b.g} g · ${b.cuch} cucharadas</div>
+      </div>
+      <span class="chip c${b.nivel}">${b.pct}%</span>
+    </div>`).join('');
+  const tg = historial.reduce((s,b) => s+b.g, 0);
+  const tp = Math.round(tg / OMS * 100);
+  const clrs = { v:'#27ae60', a:'#f39c12', r:'#e74c3c' };
+  const tn = tp <= 50 ? 'v' : tp <= 100 ? 'a' : 'r';
+  document.getElementById('total-dia').style.display = 'block';
+  document.getElementById('total-g').textContent = Math.round(tg*10)/10 + ' g';
+  const lbl = document.getElementById('total-lbl');
+  lbl.textContent = tp + '% del límite OMS'; lbl.style.color = clrs[tn];
+  const pt = document.getElementById('prog-total');
+  pt.style.width = Math.min(tp,100)+'%'; pt.style.background = clrs[tn];
+}
+
+function limpiarHist() { historial = []; renderHist(); }
+
+['inp-nombre','inp-ml','inp-g'].forEach(id => {
+  document.getElementById(id).addEventListener('keydown', e => { if (e.key==='Enter') calcular(); });
+});
+
+// ── CHARTS ───────────────────────────────────────────────────────────────────
+const azucarData = {
+  labels: ['Coca-Cola\n(330ml)','Zumo fresa\n(250ml)','Beb. energética\n(500ml)','Aquarius\n(500ml)','Red Bull\n(250ml)','Agua\n(500ml)'],
+  datasets: [{
+    label: 'Gramos de azúcar',
+    data: [35, 28, 54, 15, 27.5, 0],
+    backgroundColor: ['rgba(231,76,60,.7)','rgba(230,126,34,.7)','rgba(155,89,182,.7)','rgba(39,174,96,.7)','rgba(192,57,43,.7)','rgba(41,128,185,.7)'],
+    borderColor:     ['#e74c3c','#e67e22','#9b59b6','#27ae60','#c0392b','#2980b9'],
+    borderWidth: 1.5,
+    borderRadius: 6,
+  },{
+    label: 'Límite OMS (25 g)',
+    data: [25,25,25,25,25,25],
+    type: 'line',
+    borderColor: '#e74c3c',
+    borderDash: [5,4],
+    borderWidth: 2,
+    pointRadius: 0,
+    fill: false,
+    tension: 0,
+  }]
+};
+
+const viscoData = {
+  labels: ['Agua','Zumo fresa artif.','Bebida energética'],
+  datasets: [{
+    label: 'Tiempo medio (s)',
+    data: [0.493, 0.613, 0.68],
+    backgroundColor: ['rgba(41,128,185,.7)','rgba(230,126,34,.7)','rgba(155,89,182,.7)'],
+    borderColor: ['#2980b9','#e67e22','#9b59b6'],
+    borderWidth: 1.5,
+    borderRadius: 6,
+  }]
+};
+
+const chartOpts = (yLabel) => ({
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: { legend: { labels: { font: { size: 11 }, color: '#666' } } },
+  scales: {
+    y: { beginAtZero: true, title: { display: true, text: yLabel, color: '#aaa', font: { size: 11 } }, grid: { color: '#f0f0f0' }, ticks: { color: '#888' } },
+    x: { grid: { display: false }, ticks: { color: '#888', font: { size: 10 } } }
+  }
+});
+
+new Chart(document.getElementById('chartAzucar'), { type:'bar', data: azucarData, options: chartOpts('Gramos de azúcar') });
+new Chart(document.getElementById('chartVisco'),  { type:'bar', data: viscoData,  options: chartOpts('Tiempo (s)') });
+
+// ── GAS SIMULATOR ────────────────────────────────────────────────────────────
+const K0=0.018, ALFA=0.055, TREF=20;
+function gasCalc(T, t) { return Math.max(0, 100*Math.exp(-K0*Math.exp(ALFA*(T-TREF))*t)); }
+
+function gasUpdate() {
+  const T   = parseInt(document.getElementById('sl-t').value);
+  const min = parseInt(document.getElementById('sl-m').value);
+  document.getElementById('val-t').textContent = T + '°C';
+  document.getElementById('val-m').textContent = min === 0 ? 'Recién abierta' : min + ' min';
+  const gas = gasCalc(T, min);
+  const k   = K0*Math.exp(ALFA*(T-TREF));
+  document.getElementById('gas-pct').textContent = Math.round(gas) + '%';
+  document.getElementById('bott-lvl').setAttribute('y', 44 + (100-gas)*0.96);
+  document.getElementById('bott-bub').setAttribute('opacity', (gas/100).toFixed(2));
+  const st = document.getElementById('gas-st');
+  if (gas >= 70)      { st.className='gas-status gs-ok';  st.textContent='🫧 Muy carbonatada — perfecta'; }
+  else if (gas >= 40) { st.className='gas-status gs-mid'; st.textContent='⚠️ Carbonatación moderada'; }
+  else if (gas > 5)   { st.className='gas-status gs-mid'; st.textContent='😕 Poca carbonatación'; }
+  else                { st.className='gas-status gs-bad'; st.textContent='💨 Sin gas — completamente plana'; }
+  document.getElementById('gas-detail').innerHTML =
+    `Tasa: <strong>${(k*60).toFixed(3)}</strong> %/h · Semivida: <strong>${(Math.log(2)/k).toFixed(1)}</strong> min`;
+  document.getElementById('gas-formula').textContent =
+    `Gas(${T}°C, ${min}min) = 100 · e^(−${k.toFixed(4)} · ${min}) = ${gas.toFixed(1)}%`;
+}
+gasUpdate();
+</script>
+</body>
+</html>
