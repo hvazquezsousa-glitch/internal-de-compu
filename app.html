@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Bebidas Hipertónicas — Proyecto de Grupo</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0f;--card:#13131c;--border:#1e1e2e;
+  --bio:#2ecc71;--quim:#9b59b6;--fis:#e67e22;--sas:#1abc9c;--cs:#f39c12;
+  --txt:#e0e0e0;--sub:#888;--w:#fff;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--txt);font-family:'Segoe UI',Arial,sans-serif;min-height:100vh}
+
+/* ── NAV ── */
+nav{position:sticky;top:0;z-index:100;background:#050508;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:0;overflow-x:auto;padding:0 8px}
+nav::-webkit-scrollbar{height:3px}nav::-webkit-scrollbar-thumb{background:#333}
+.nav-tab{flex-shrink:0;padding:16px 20px;font-size:.85rem;font-weight:600;color:#666;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;background:none;border-top:none;border-left:none;border-right:none}
+.nav-tab:hover{color:#aaa}
+.nav-tab.active{color:var(--w);border-bottom-color:var(--cs)}
+.nav-tab.t-bio.active{border-bottom-color:var(--bio);color:var(--bio)}
+.nav-tab.t-quim.active{border-bottom-color:var(--quim);color:var(--quim)}
+.nav-tab.t-fis.active{border-bottom-color:var(--fis);color:var(--fis)}
+.nav-tab.t-sas.active{border-bottom-color:var(--sas);color:var(--sas)}
+.nav-tab.t-cs.active{border-bottom-color:var(--cs);color:var(--cs)}
+.nav-brand{font-weight:800;font-size:.9rem;color:var(--cs);padding:0 16px 0 8px;white-space:nowrap;border-right:1px solid var(--border);margin-right:4px}
+
+/* ── PAGES ── */
+.page{display:none;padding:32px 16px 60px;max-width:1100px;margin:0 auto}
+.page.active{display:block}
+
+/* ── HERO (Inicio) ── */
+.hero{text-align:center;padding:60px 20px 40px}
+.hero .badge{display:inline-block;background:rgba(243,156,18,.1);border:1px solid rgba(243,156,18,.3);color:var(--cs);font-size:.7rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:4px 14px;border-radius:20px;margin-bottom:18px}
+.hero h1{font-size:clamp(1.8rem,4vw,3rem);font-weight:900;line-height:1.15;color:var(--w);margin-bottom:12px}
+.hero h1 em{font-style:normal;color:var(--cs)}
+.hero p{color:var(--sub);font-size:1rem;max-width:580px;margin:0 auto 36px}
+.subject-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-top:8px}
+.scard{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;cursor:pointer;transition:all .2s;text-align:left;border-top:3px solid}
+.scard:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,.4)}
+.scard .icon{font-size:1.8rem;margin-bottom:10px}
+.scard h3{font-size:.95rem;font-weight:700;color:var(--w);margin-bottom:4px}
+.scard p{font-size:.78rem;color:var(--sub);line-height:1.5}
+
+/* ── SECTION HEADERS ── */
+.sec-header{display:flex;align-items:center;gap:14px;margin-bottom:28px;padding-bottom:18px;border-bottom:1px solid var(--border)}
+.sec-icon{width:54px;height:54px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0}
+.sec-header h2{font-size:1.6rem;font-weight:800;color:var(--w);margin:0 0 4px}
+.sec-header .sub{color:var(--sub);font-size:.88rem}
+
+/* ── CARDS ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:26px;margin-bottom:20px}
+.card h3{font-size:.95rem;font-weight:700;color:var(--w);margin-bottom:16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media(max-width:700px){.grid2,.grid3{grid-template-columns:1fr}}
+
+/* ── LABELS ── */
+.block-label{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;margin-top:20px}
+.block-label:first-child{margin-top:0}
+
+/* ── STEPS ── */
+.steps{list-style:none;padding:0}
+.steps li{display:flex;gap:12px;align-items:flex-start;padding:9px 0;border-bottom:1px solid #111;font-size:.88rem;color:#ccc;line-height:1.5}
+.steps li:last-child{border-bottom:none}
+.step-n{width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;color:#000}
+
+/* ── DATA TABLE ── */
+.dtable{width:100%;border-collapse:collapse;font-size:.84rem}
+.dtable th{background:#111;color:var(--sub);font-size:.7rem;text-transform:uppercase;letter-spacing:1px;padding:10px 14px;text-align:left;border-bottom:1px solid var(--border)}
+.dtable td{padding:11px 14px;border-bottom:1px solid #111;color:#ccc}
+.dtable tr:hover td{background:#111}
+.neg{color:#e74c3c;font-weight:700}
+.pos{color:var(--bio);font-weight:700}
+.ph-r{color:#e74c3c;font-weight:700}
+.ph-o{color:var(--fis);font-weight:700}
+.ph-y{color:var(--cs);font-weight:700}
+
+/* ── INFO BOX ── */
+.info{border-radius:10px;padding:14px 16px;font-size:.84rem;line-height:1.65;margin-top:14px;border:1px solid}
+.info-bio{background:rgba(46,204,113,.06);border-color:rgba(46,204,113,.2);color:#aaa}
+.info-quim{background:rgba(155,89,182,.06);border-color:rgba(155,89,182,.2);color:#aaa}
+.info-fis{background:rgba(230,126,34,.06);border-color:rgba(230,126,34,.2);color:#aaa}
+.info-sas{background:rgba(26,188,156,.06);border-color:rgba(26,188,156,.2);color:#aaa}
+.info-cs{background:rgba(243,156,18,.06);border-color:rgba(243,156,18,.2);color:#aaa}
+.info strong{color:var(--w)}
+
+/* ── CSS BAR CHART ── */
+.chart-bars{display:flex;align-items:flex-end;gap:12px;height:160px;padding:0 4px}
+.bar-col{display:flex;flex-direction:column;align-items:center;flex:1;gap:6px}
+.bar-fill{width:100%;border-radius:6px 6px 0 0;transition:height .8s ease;min-height:2px}
+.bar-label{font-size:.68rem;color:var(--sub);text-align:center;line-height:1.3}
+.bar-val{font-size:.72rem;font-weight:700;color:var(--w)}
+.chart-line{width:100%;height:1px;background:var(--border);margin-top:4px}
+
+/* ── MARBLE ANIMATION ── */
+.marble-demo{display:flex;gap:24px;align-items:flex-start;justify-content:center;flex-wrap:wrap}
+.tube-wrap{display:flex;flex-direction:column;align-items:center;gap:8px}
+.tube{width:44px;height:140px;border:2px solid #333;border-radius:4px;position:relative;overflow:hidden;background:linear-gradient(to bottom,transparent 10%,rgba(41,128,185,.15) 40%)}
+.marble{width:18px;height:18px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#e0e0e0,#888);box-shadow:0 2px 6px rgba(0,0,0,.5);position:absolute;left:50%;transform:translateX(-50%);top:8px}
+.tube-label{font-size:.75rem;color:var(--sub);text-align:center}
+.tube-time{font-size:.9rem;font-weight:700;color:var(--w)}
+
+/* ── SAS COMPARE TABLE ── */
+.compare-grid{display:grid;grid-template-columns:auto 1fr 1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:12px;overflow:hidden;font-size:.82rem}
+.cg-cell{background:var(--card);padding:11px 14px}
+.cg-head{background:#111;color:var(--sub);font-size:.7rem;text-transform:uppercase;letter-spacing:1px;font-weight:700}
+.cg-row-label{background:#0f0f18;color:#888;font-size:.78rem}
+.dots{display:flex;gap:3px}
+.dot{width:8px;height:8px;border-radius:50%;background:#222}
+.dot.on{background:var(--sas)}
+
+/* ── CS CALCULATOR ── */
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:.82rem;font-weight:600;color:#aaa;margin-bottom:5px}
+.form-group input{width:100%;background:#0d0d15;border:1.5px solid var(--border);border-radius:10px;color:var(--w);padding:10px 14px;font-size:.93rem;outline:none;transition:border-color .2s}
+.form-group input:focus{border-color:var(--cs)}
+.form-group input::placeholder{color:#444}
+.btn-calc{background:linear-gradient(135deg,#f39c12,#e67e22);color:#000;font-weight:800;border:none;border-radius:10px;padding:13px 24px;font-size:.95rem;cursor:pointer;width:100%;transition:opacity .2s}
+.btn-calc:hover{opacity:.85}
+.presets{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:20px}
+.preset-btn{background:var(--card);border:1.5px solid var(--border);border-radius:10px;padding:12px;cursor:pointer;transition:all .2s;text-align:left}
+.preset-btn:hover{border-color:var(--cs);background:#1a1a0f}
+.preset-btn .pname{font-size:.82rem;font-weight:700;color:var(--w)}
+.preset-btn .pdata{font-size:.72rem;color:var(--sub);margin-top:3px}
+.preset-btn .pbadge{display:inline-block;margin-top:5px;padding:2px 8px;border-radius:8px;font-size:.68rem;font-weight:700}
+
+/* ── SEMAFORO ── */
+.sema-wrap{display:flex;flex-direction:column;align-items:center;gap:18px}
+.semaforo{background:#0d0d0d;border:3px solid #1a1a1a;border-radius:60px;padding:16px 20px;display:flex;flex-direction:column;gap:12px;box-shadow:0 4px 30px rgba(0,0,0,.6)}
+.luz{width:60px;height:60px;border-radius:50%;background:#1a1a1a;border:2px solid #222;transition:all .5s}
+.luz.on-r{background:#e74c3c;box-shadow:0 0 26px #e74c3c,0 0 60px rgba(231,76,60,.35)}
+.luz.on-a{background:#f39c12;box-shadow:0 0 26px #f39c12,0 0 60px rgba(243,156,18,.35)}
+.luz.on-v{background:#2ecc71;box-shadow:0 0 26px #2ecc71,0 0 60px rgba(46,204,113,.35)}
+.res-box{text-align:center;width:100%}
+.res-pct{font-size:3.2rem;font-weight:900;line-height:1;margin-bottom:4px}
+.res-sub{font-size:.75rem;color:var(--sub);margin-bottom:14px}
+.prog-bg{background:#1a1a1a;border-radius:20px;height:12px;overflow:hidden;margin-bottom:4px}
+.prog-fill{height:100%;border-radius:20px;transition:width .8s,background .5s;width:0}
+.prog-lbl{display:flex;justify-content:space-between;font-size:.68rem;color:#555;margin-bottom:12px}
+.spoons{display:flex;flex-wrap:wrap;gap:3px;justify-content:center;margin:8px 0}
+.alert{padding:11px 16px;border-radius:10px;font-weight:700;font-size:.86rem;margin-top:8px;text-align:center}
+.al-v{background:rgba(46,204,113,.12);border:1.5px solid var(--bio);color:var(--bio)}
+.al-a{background:rgba(243,156,18,.12);border:1.5px solid var(--cs);color:var(--cs)}
+.al-r{background:rgba(231,76,60,.12);border:1.5px solid #e74c3c;color:#e74c3c}
+.placeholder{color:#444;font-size:.88rem;text-align:center;padding:36px 0}
+
+/* ── HISTORIAL ── */
+.hist-item{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#0d0d15;border-radius:10px;margin-bottom:7px;border-left:3px solid;font-size:.84rem}
+.hi-v{border-left-color:var(--bio)}.hi-a{border-left-color:var(--cs)}.hi-r{border-left-color:#e74c3c}
+.chip{padding:3px 10px;border-radius:10px;font-size:.72rem;font-weight:700}
+.chip-v{background:rgba(46,204,113,.15);color:var(--bio)}
+.chip-a{background:rgba(243,156,18,.15);color:var(--cs)}
+.chip-r{background:rgba(231,76,60,.15);color:#e74c3c}
+.total-box{background:#0d0d15;border-radius:12px;padding:14px;text-align:center;margin-bottom:14px}
+.total-num{font-size:2rem;font-weight:900;line-height:1}
+.btn-clear{background:transparent;border:1px solid var(--border);border-radius:8px;color:#555;padding:8px 16px;cursor:pointer;font-size:.8rem;width:100%;transition:all .2s;margin-top:12px}
+.btn-clear:hover{border-color:#444;color:#aaa}
+
+/* ── GAS SIM ── */
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:5px;background:var(--border);border-radius:3px;outline:none;margin-top:6px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:17px;height:17px;border-radius:50%;background:var(--fis);cursor:pointer}
+input[type=range]::-moz-range-thumb{width:17px;height:17px;border-radius:50%;background:var(--fis);cursor:pointer;border:none}
+.sval{font-weight:700;color:var(--fis)}
+.slbl{display:flex;justify-content:space-between;font-size:.68rem;color:#555;margin-top:3px}
+.gas-pct{font-size:3rem;font-weight:900;color:#4fc3f7;line-height:1}
+.gas-st{padding:10px 14px;border-radius:10px;font-size:.84rem;margin-top:10px}
+.gst-ok{background:rgba(79,195,247,.08);border:1px solid #4fc3f7;color:#4fc3f7}
+.gst-mid{background:rgba(243,156,18,.08);border:1px solid var(--cs);color:var(--cs)}
+.gst-bad{background:rgba(231,76,60,.08);border:1px solid #e74c3c;color:#e74c3c}
+.formula{background:#0d0d15;border-radius:8px;padding:10px 14px;font-family:monospace;font-size:.76rem;color:#666;margin-top:10px}
+
+/* scrollbar */
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#111}::-webkit-scrollbar-thumb{background:#2a2a2a;border-radius:3px}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">🧪 Bebidas Hipertónicas</div>
+  <button class="nav-tab active" onclick="goTo('inicio',this)">🏠 Inicio</button>
+  <button class="nav-tab t-bio"  onclick="goTo('bio',this)">🧬 Biología</button>
+  <button class="nav-tab t-quim" onclick="goTo('quim',this)">⚗️ Química</button>
+  <button class="nav-tab t-fis"  onclick="goTo('fis',this)">⚡ Física</button>
+  <button class="nav-tab t-sas"  onclick="goTo('sas',this)">🌍 SAS</button>
+  <button class="nav-tab t-cs"   onclick="goTo('cs',this)">💻 Computer Science</button>
+</nav>
+
+<!-- ══════════════════ INICIO ══════════════════ -->
+<div id="page-inicio" class="page active">
+  <div class="hero">
+    <div class="badge">Proyecto Interdisciplinar · IB</div>
+    <h1>Bebidas Hipertónicas:<br><em>Azúcar, Gas y Salud</em></h1>
+    <p>Un proyecto que conecta cinco asignaturas a través del estudio científico de las bebidas. Datos reales de nuestros experimentos.</p>
+  </div>
+  <div class="subject-cards" id="inicio-cards"></div>
+  <div class="card" style="margin-top:32px;">
+    <h3 style="margin-bottom:18px;">📋 Resumen general del proyecto</h3>
+    <table class="dtable">
+      <thead><tr><th>Asignatura</th><th>¿Qué se estudia?</th><th>Experimento</th><th>Equipo</th></tr></thead>
+      <tbody>
+        <tr><td><span style="color:var(--bio);font-weight:700;">🧬 Biología</span></td><td>Ósmosis en células vegetales</td><td>Patata en bebidas → cambio de masa</td><td>Balanza, vasos, patatas</td></tr>
+        <tr><td><span style="color:var(--quim);font-weight:700;">⚗️ Química</span></td><td>Acidez y erosión dental</td><td>pH + cáscaras de huevo en bebidas</td><td>Tiras de pH, balanza</td></tr>
+        <tr><td><span style="color:var(--fis);font-weight:700;">⚡ Física</span></td><td>Viscosidad según azúcar</td><td>Canica cayendo en probeta</td><td>Probeta, canica, cronómetro</td></tr>
+        <tr><td><span style="color:var(--sas);font-weight:700;">🌍 SAS</span></td><td>Huella hídrica y carbono</td><td>Análisis PET vs vidrio vs aluminio</td><td>Bases de datos ambientales</td></tr>
+        <tr><td><span style="color:var(--cs);font-weight:700;">💻 CS</span></td><td>Visualización del azúcar</td><td>Semáforo nutricional interactivo</td><td>Ordenador (esta aplicación)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════ BIOLOGÍA ══════════════════ -->
+<div id="page-bio" class="page">
+  <div class="sec-header">
+    <div class="sec-icon" style="background:rgba(46,204,113,.1);">🧬</div>
+    <div>
+      <h2 style="color:var(--bio);">Biología — Ósmosis y Células</h2>
+      <div class="sub">¿Las bebidas hipertónicas hidratan o deshidratan las células?</div>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <div class="block-label" style="color:var(--bio)">🎯 Objetivo e hipótesis</div>
+      <p style="font-size:.88rem;color:#ccc;line-height:1.7;margin-bottom:14px;">Comprobar si las bebidas con alta concentración de azúcar <strong style="color:var(--w)">deshidratan</strong> las células mediante ósmosis, usando cilindros de patata como modelo.</p>
+      <div class="info info-bio"><strong>Hipótesis:</strong> Las bebidas con más azúcar harán que la patata pierda masa, simulando la deshidratación celular que ocurre en el cuerpo humano.</div>
+      <div class="block-label" style="color:var(--bio);margin-top:20px">🔬 Procedimiento</div>
+      <ul class="steps">
+        <li><span class="step-n" style="background:var(--bio);">1</span>Cortar trozos iguales de patata.</li>
+        <li><span class="step-n" style="background:var(--bio);">2</span>Pesar cada muestra antes del experimento.</li>
+        <li><span class="step-n" style="background:var(--bio);">3</span>Sumergir en: Zumo fresa · Coca-Cola · Bebida energética.</li>
+        <li><span class="step-n" style="background:var(--bio);">4</span>Esperar <strong style="color:var(--w)">3 días</strong>.</li>
+        <li><span class="step-n" style="background:var(--bio);">5</span>Secar y volver a pesar. Comparar cambios.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="block-label" style="color:var(--bio)">📊 Resultados reales</div>
+      <table class="dtable">
+        <thead><tr><th>Bebida</th><th>Masa inicial</th><th>Masa final</th><th>Cambio</th><th>%</th></tr></thead>
+        <tbody>
+          <tr><td>Zumo fresa</td><td>23,066 g</td><td>21,88 g</td><td class="neg">−1,186 g</td><td class="neg">−5,1%</td></tr>
+          <tr><td>Coca-Cola</td><td>25,365 g</td><td>23,96 g</td><td class="neg">−1,405 g</td><td class="neg">−5,5%</td></tr>
+          <tr><td>Beb. energética</td><td>27,472 g</td><td>24,90 g</td><td class="neg">−2,572 g</td><td class="neg">−9,4%</td></tr>
+        </tbody>
+      </table>
+      <div class="block-label" style="color:var(--bio);margin-top:20px">Pérdida de masa (g)</div>
+      <div class="chart-bars" id="bio-chart"></div>
+      <div class="chart-line"></div>
+      <div class="info info-bio" style="margin-top:12px;">
+        <strong>Todas las patatas perdieron masa</strong> → todas las bebidas son hipertónicas.<br>
+        La <strong>bebida energética</strong> produjo la mayor pérdida (−9,4%), siendo la más concentrada.
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="block-label" style="color:var(--bio)">🔑 Interpretación biológica</div>
+    <div class="grid2" style="margin-top:8px;">
+      <div class="info info-bio"><strong>¿Por qué pierde masa?</strong><br>La bebida tiene más concentración de azúcar que la célula. El agua sale de las células de la patata hacia la bebida por ósmosis → las células se <strong>deshidratan</strong>.</div>
+      <div class="info info-bio"><strong>Relación con el cuerpo humano</strong><br>En humanos, un consumo frecuente de bebidas muy azucaradas puede favorecer: deshidratación, sensación de sed continua y alteraciones en el equilibrio hídrico celular.</div>
+    </div>
+    <div class="info info-bio" style="margin-top:12px;"><strong>Conclusión:</strong> Las bebidas con alta concentración de azúcar provocan salida de agua de las células por ósmosis. Esto explica por qué algunas bebidas azucaradas <strong>no calman la sed</strong>: el agua se mueve hacia donde hay más concentración de solutos para intentar equilibrar ambos lados de la membrana.</div>
+  </div>
+</div>
+
+<!-- ══════════════════ QUÍMICA ══════════════════ -->
+<div id="page-quim" class="page">
+  <div class="sec-header">
+    <div class="sec-icon" style="background:rgba(155,89,182,.1);">⚗️</div>
+    <div>
+      <h2 style="color:var(--quim);">Química — Acidez y Esmalte Dental</h2>
+      <div class="sub">¿Cómo afectan las bebidas ácidas al esmalte dental?</div>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <div class="block-label" style="color:var(--quim)">🎯 Objetivo</div>
+      <p style="font-size:.88rem;color:#ccc;line-height:1.7;margin-bottom:14px;">Analizar si la acidez de las bebidas hipertónicas puede dañar el esmalte dental. La cáscara de huevo contiene CaCO₃, similar a los minerales del esmalte.</p>
+      <div class="block-label" style="color:var(--quim)">🔬 Procedimiento</div>
+      <ul class="steps">
+        <li><span class="step-n" style="background:var(--quim);">1</span>Medir pH de cada bebida con tiras de pH.</li>
+        <li><span class="step-n" style="background:var(--quim);">2</span>Pesar cáscaras de huevo (modelo del esmalte).</li>
+        <li><span class="step-n" style="background:var(--quim);">3</span>Sumergir en las bebidas durante <strong style="color:var(--w)">3 días</strong>.</li>
+        <li><span class="step-n" style="background:var(--quim);">4</span>Observar color, textura, rugosidad.</li>
+        <li><span class="step-n" style="background:var(--quim);">5</span>Volver a pesar y calcular cambio.</li>
+      </ul>
+      <div class="info info-quim" style="margin-top:14px;"><strong>Umbral crítico:</strong> pH &lt; 5,5 comienza a disolver el esmalte dental.</div>
+    </div>
+    <div class="card">
+      <div class="block-label" style="color:var(--quim)">📊 pH de las bebidas</div>
+      <div style="display:flex;gap:12px;justify-content:center;margin:16px 0">
+        <div style="text-align:center;padding:16px 20px;background:#111;border-radius:12px;flex:1;">
+          <div class="ph-r" style="font-size:2.2rem;font-weight:900;">3</div>
+          <div style="font-size:.8rem;color:#888;margin-top:4px;">Coca-Cola</div>
+          <div style="font-size:.68rem;color:#e74c3c;margin-top:3px;">⚠️ Muy ácido</div>
+        </div>
+        <div style="text-align:center;padding:16px 20px;background:#111;border-radius:12px;flex:1;">
+          <div class="ph-o" style="font-size:2.2rem;font-weight:900;">4</div>
+          <div style="font-size:.8rem;color:#888;margin-top:4px;">Zumo fresa</div>
+          <div style="font-size:.68rem;color:var(--fis);margin-top:3px;">⚠️ Ácido</div>
+        </div>
+        <div style="text-align:center;padding:16px 20px;background:#111;border-radius:12px;flex:1;">
+          <div class="ph-y" style="font-size:2.2rem;font-weight:900;">5</div>
+          <div style="font-size:.8rem;color:#888;margin-top:4px;">Beb. energética</div>
+          <div style="font-size:.68rem;color:var(--cs);margin-top:3px;">⚠️ Ligeramente ácido</div>
+        </div>
+      </div>
+      <div class="block-label" style="color:var(--quim)">Masa cáscaras de huevo</div>
+      <table class="dtable">
+        <thead><tr><th>Bebida</th><th>pH</th><th>Inicial (g)</th><th>Final (g)</th><th>Cambio</th></tr></thead>
+        <tbody>
+          <tr><td>Coca-Cola</td><td><span class="ph-r">3</span></td><td>2,62</td><td>2,391</td><td class="neg">−0,229 g ↓ esmalte disuelto</td></tr>
+          <tr><td>Zumo fresa</td><td><span class="ph-o">4</span></td><td>2,55</td><td>3,552</td><td class="pos">+1,002 g ↑ absorción azúcar</td></tr>
+          <tr><td>Beb. energética</td><td><span class="ph-y">5</span></td><td>2,88</td><td>4,618</td><td class="pos">+1,738 g ↑ absorción azúcar</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card">
+    <div class="block-label" style="color:var(--quim)">🦷 Interpretación — relación con los dientes humanos</div>
+    <div class="grid2" style="margin-top:8px;">
+      <div class="info info-quim"><strong>Coca-Cola (pH 3) → disminuyó masa</strong><br>Parte del CaCO₃ se disolvió por la acción de los ácidos. Esto simula la pérdida de minerales del esmalte dental (erosión).</div>
+      <div class="info info-quim"><strong>Zumo y energética → aumentaron masa</strong><br>Los azúcares y colorantes quedaron adheridos. Aunque la masa aumentó, la superficie se manchó y alteró, simulando manchas dentales a largo plazo.</div>
+    </div>
+    <div class="info info-quim" style="margin-top:12px;"><strong>Las 3 bebidas tiñeron la cáscara</strong> del color de la bebida → indicando el efecto a largo plazo que pueden causar en los dientes. El consumo frecuente favorece: caries, sensibilidad dental, desgaste del esmalte y manchas oscuras.</div>
+  </div>
+</div>
+
+<!-- ══════════════════ FÍSICA ══════════════════ -->
+<div id="page-fis" class="page">
+  <div class="sec-header">
+    <div class="sec-icon" style="background:rgba(230,126,34,.1);">⚡</div>
+    <div>
+      <h2 style="color:var(--fis);">Física — Viscosidad de las Bebidas</h2>
+      <div class="sub">¿Cómo influye el azúcar en la viscosidad?</div>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <div class="block-label" style="color:var(--fis)">🎯 Objetivo e hipótesis</div>
+      <p style="font-size:.88rem;color:#ccc;line-height:1.7;margin-bottom:12px;">Investigar cómo la concentración de azúcar modifica la viscosidad, midiendo el tiempo que tarda una canica en recorrer 20 cm en distintas bebidas.</p>
+      <div class="info info-fis"><strong>Hipótesis:</strong> Las bebidas con mayor concentración de azúcar tendrán mayor viscosidad, por lo que la canica tardará más tiempo en caer.</div>
+      <div class="block-label" style="color:var(--fis);margin-top:20px">🔬 Variables</div>
+      <table class="dtable">
+        <thead><tr><th>Variable</th><th>Descripción</th></tr></thead>
+        <tbody>
+          <tr><td style="color:var(--fis)">Independiente</td><td>Tipo de bebida / cantidad de azúcar</td></tr>
+          <tr><td style="color:var(--bio)">Dependiente</td><td>Tiempo de caída (s) a 20 cm</td></tr>
+          <tr><td style="color:#888">Controladas</td><td>Mismo recipiente, misma canica, misma altura, misma temperatura</td></tr>
+        </tbody>
+      </table>
+      <div class="info info-fis" style="margin-top:14px;"><strong>Fórmula:</strong> v = d/t · Velocidad media = distancia / tiempo.<br>A mayor viscosidad → más rozamiento → la esfera acelera menos → tarda más.</div>
+    </div>
+    <div class="card">
+      <div class="block-label" style="color:var(--fis)">📊 Resultados — tiempos de caída (s)</div>
+      <table class="dtable">
+        <thead><tr><th>Bebida</th><th>Medición 1</th><th>Medición 2</th><th>Medición 3</th><th>Media</th><th>v (cm/s)</th></tr></thead>
+        <tbody>
+          <tr><td>Agua</td><td>0,49</td><td>0,51</td><td>0,48</td><td><strong style="color:var(--bio)">0,49 s</strong></td><td>40,8</td></tr>
+          <tr><td>Zumo fresa</td><td>0,63</td><td>0,59</td><td>0,62</td><td><strong style="color:var(--cs)">0,61 s</strong></td><td>32,8</td></tr>
+          <tr><td>Beb. energética</td><td>0,68</td><td>0,66</td><td>0,70</td><td><strong style="color:#e74c3c">0,68 s</strong></td><td>29,4</td></tr>
+        </tbody>
+      </table>
+      <div class="block-label" style="color:var(--fis);margin-top:18px">Simulación — caída de la canica</div>
+      <div class="marble-demo" id="marble-demo"></div>
+      <button onclick="dropMarbles()" style="margin-top:16px;background:var(--fis);color:#000;font-weight:700;border:none;border-radius:8px;padding:10px 20px;cursor:pointer;font-size:.85rem;width:100%;">▶ Soltar canica</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="block-label" style="color:var(--fis)">📈 Conclusión</div>
+    <div class="info info-fis"><strong>La bebida energética fue la más viscosa</strong> (0,68 s) porque la canica tardó más tiempo en atravesarla, indicando mayor concentración de sustancias disueltas.<br><br>Aplicación al cuerpo: las bebidas con mucho azúcar son más viscosas, más calóricas y menos saludables si se consumen en exceso. Su consumo frecuente puede relacionarse con obesidad, diabetes tipo 2 y problemas dentales.</div>
+  </div>
+</div>
+
+<!-- ══════════════════ SAS ══════════════════ -->
+<div id="page-sas" class="page">
+  <div class="sec-header">
+    <div class="sec-icon" style="background:rgba(26,188,156,.1);">🌍</div>
+    <div>
+      <h2 style="color:var(--sas);">SAS — Impacto Ambiental</h2>
+      <div class="sub">Análisis del ciclo de vida: PET vs Vidrio vs Aluminio</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="block-label" style="color:var(--sas)">📊 Comparativa de envases</div>
+    <div class="compare-grid" style="margin-top:12px;">
+      <div class="cg-cell cg-head">Característica</div>
+      <div class="cg-cell cg-head" style="color:#e74c3c;">🧴 Plástico PET</div>
+      <div class="cg-cell cg-head" style="color:#aaa;">🍾 Vidrio</div>
+      <div class="cg-cell cg-head" style="color:var(--sas);">🥫 Aluminio</div>
+      <div class="cg-cell cg-row-label">Peso</div>
+      <div class="cg-cell">Muy ligero</div><div class="cg-cell">Muy pesado</div><div class="cg-cell">Ligero</div>
+      <div class="cg-cell cg-row-label">Resistencia</div>
+      <div class="cg-cell">Alta</div><div class="cg-cell">Baja (se rompe)</div><div class="cg-cell">Alta</div>
+      <div class="cg-cell cg-row-label">Reutilización</div>
+      <div class="cg-cell" style="color:#e74c3c">Baja</div><div class="cg-cell" style="color:var(--bio)">Muy alta</div><div class="cg-cell" style="color:var(--cs)">Media</div>
+      <div class="cg-cell cg-row-label">Reciclaje</div>
+      <div class="cg-cell"><div class="dots"><div class="dot on"></div><div class="dot on"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
+      <div class="cg-cell"><div class="dots"><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div><div class="dot"></div></div></div>
+      <div class="cg-cell"><div class="dots"><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div></div></div>
+      <div class="cg-cell cg-row-label">Degradación</div>
+      <div class="cg-cell" style="color:#e74c3c">400–700 años</div><div class="cg-cell" style="color:#e67e22">+4.000 años</div><div class="cg-cell" style="color:var(--cs)">200–500 años</div>
+      <div class="cg-cell cg-row-label">CO₂ emitido/L</div>
+      <div class="cg-cell">0,11–0,65 kg</div><div class="cg-cell" style="color:#e74c3c">0,39–1,05 kg</div><div class="cg-cell" style="color:var(--bio)">0,11–0,51 kg*</div>
+      <div class="cg-cell cg-row-label">Impacto global</div>
+      <div class="cg-cell" style="color:#e74c3c">Alto</div><div class="cg-cell" style="color:var(--cs)">Medio</div><div class="cg-cell" style="color:var(--bio)">Bajo-medio*</div>
+    </div>
+    <div style="font-size:.72rem;color:#555;margin-top:8px;">* Si se recicla correctamente. La producción de aluminio nuevo es muy contaminante.</div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <div class="block-label" style="color:var(--sas)">💧 Huella hídrica</div>
+      <p style="font-size:.84rem;color:#ccc;line-height:1.7;">Producir <strong style="color:var(--w)">1 litro de refresco</strong> puede requerir entre <strong style="color:var(--cs)">150 y 300 litros de agua</strong>, incluyendo el cultivo del azúcar, fabricación del envase, limpieza y transporte.</p>
+      <table class="dtable" style="margin-top:14px;">
+        <thead><tr><th>Envase</th><th>Agua en fabricación</th></tr></thead>
+        <tbody>
+          <tr><td>🧴 PET</td><td>Bajo en fabricación, alto impacto por residuos</td></tr>
+          <tr><td>🍾 Vidrio</td><td>Alto consumo energético y de agua</td></tr>
+          <tr><td>🥫 Aluminio</td><td>Alto al fabricarse, muy bajo si se recicla</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="block-label" style="color:var(--sas)">♻️ Reciclaje en Madrid</div>
+      <p style="font-size:.84rem;color:#ccc;line-height:1.7;margin-bottom:14px;">Madrid cuenta con recogida selectiva separada para vidrio, papel/cartón, envases plásticos/metal y residuos orgánicos.</p>
+      <div style="background:#111;border-radius:10px;padding:14px;font-size:.83rem;">
+        <div style="margin-bottom:8px;color:#888;font-size:.7rem;text-transform:uppercase;letter-spacing:1px;">Materiales más reciclados</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;justify-content:space-between;"><span>1. Papel y cartón</span><span class="chip chip-v">★★★★★</span></div>
+          <div style="display:flex;justify-content:space-between;"><span>2. Vidrio</span><span class="chip chip-v">★★★★☆</span></div>
+          <div style="display:flex;justify-content:space-between;"><span>3. Plástico / latas</span><span class="chip chip-a">★★★☆☆</span></div>
+        </div>
+      </div>
+      <div class="info info-sas" style="margin-top:12px;"><strong>El aluminio</strong> es el más reciclable: se puede reciclar infinitamente y ahorra hasta un <strong>95% de energía</strong> frente a fabricar aluminio nuevo.</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="block-label" style="color:var(--sas)">🏭 Políticas empresariales</div>
+    <div class="grid2">
+      <div class="info info-sas"><strong>Coca-Cola:</strong> Afirma que está aumentando el uso de PET reciclado y la recogida de envases. Sin embargo, varias organizaciones señalan a Coca-Cola como una de las empresas que más residuos plásticos genera en el mundo.</div>
+      <div class="info info-sas"><strong>PepsiCo:</strong> Ha anunciado programas para reducir plástico virgen, aumentar envases reciclables y disminuir emisiones de carbono.<br><br><strong>Empresas de aluminio:</strong> Impulsan latas reciclables y sistemas de reutilización.</div>
+    </div>
+    <div class="info info-sas" style="margin-top:12px;"><strong>Conclusión final:</strong> El envase más sostenible depende de cómo se utilice. El aluminio reciclado y el vidrio reutilizable son las opciones más sostenibles frente al plástico de un solo uso.</div>
+  </div>
+</div>
+
+<!-- ══════════════════ COMPUTER SCIENCE ══════════════════ -->
+<div id="page-cs" class="page">
+  <div class="sec-header">
+    <div class="sec-icon" style="background:rgba(243,156,18,.1);">💻</div>
+    <div>
+      <h2 style="color:var(--cs);">Computer Science — Semáforo Nutricional</h2>
+      <div class="sub">Calculadora interactiva: azúcar → cucharadas → % límite OMS</div>
+    </div>
+  </div>
+
+  <!-- Bebidas presets -->
+  <div class="block-label" style="color:var(--cs);margin-top:0">Bebidas de nuestro experimento — haz clic para cargar</div>
+  <div class="presets" id="cs-presets"></div>
+
+  <!-- Calculadora + semáforo -->
+  <div class="grid2">
+    <div class="card">
+      <h3>🥤 Introduce tu bebida</h3>
+      <div class="form-group"><label>Nombre de la bebida</label><input type="text" id="inp-n" placeholder="ej. Coca-Cola"/></div>
+      <div class="form-group"><label>Cantidad (ml)</label><input type="number" id="inp-ml" placeholder="ej. 330" min="1"/></div>
+      <div class="form-group"><label>Gramos de azúcar</label><input type="number" id="inp-g" placeholder="ej. 35" min="0" step="0.1"/></div>
+      <button class="btn-calc" onclick="calc()">Analizar bebida →</button>
+      <div style="margin-top:14px;padding:12px 14px;background:#0d0d15;border-radius:10px;font-size:.76rem;color:#555;line-height:1.7;">
+        <strong style="color:#777;">Límite OMS:</strong> 25 g de azúcar libre al día<br>
+        <strong style="color:#777;">1 cucharada</strong> ≈ 4 g de azúcar
+      </div>
+    </div>
+    <div class="card">
+      <h3>🚦 Resultado</h3>
+      <div class="sema-wrap">
+        <div class="semaforo">
+          <div class="luz" id="lr"></div>
+          <div class="luz" id="la"></div>
+          <div class="luz" id="lv"></div>
+        </div>
+        <div style="width:100%">
+          <div class="placeholder" id="cs-ph">Introduce una bebida para ver el análisis</div>
+          <div id="cs-res" style="display:none" class="res-box">
+            <div class="res-pct" id="res-pct"></div>
+            <div class="res-sub">del límite diario OMS</div>
+            <div class="prog-bg"><div class="prog-fill" id="prog-f"></div></div>
+            <div class="prog-lbl"><span>0 g</span><span>25 g (OMS)</span></div>
+            <div style="font-size:.88rem;color:#ccc;"><strong id="rg"></strong> g = <strong id="rc"></strong> cucharadas</div>
+            <div class="spoons" id="sp-grid"></div>
+            <div class="alert" id="cs-alert"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Historial -->
+  <div class="block-label" style="color:var(--cs)">📋 Historial del día</div>
+  <div class="card">
+    <div id="hist-total" style="display:none;">
+      <div class="total-box">
+        <div style="font-size:.72rem;color:#666;margin-bottom:4px;">Total acumulado del día</div>
+        <div class="total-num" id="tot-g">0 g</div>
+        <div style="font-size:.8rem;margin-top:2px;" id="tot-lbl"></div>
+        <div class="prog-bg" style="margin-top:8px;"><div class="prog-fill" id="prog-tot"></div></div>
+      </div>
+    </div>
+    <div id="hist-list"><div class="placeholder">Aún no has añadido bebidas</div></div>
+    <button class="btn-clear" onclick="clearHist()">Limpiar historial</button>
+  </div>
+
+  <!-- Gráfica azúcar -->
+  <div class="block-label" style="color:var(--cs)">📊 Azúcar por bebida (comparativa)</div>
+  <div class="card">
+    <div class="chart-bars" id="cs-chart"></div>
+    <div class="chart-line"></div>
+    <div style="margin-top:8px;font-size:.72rem;color:#555;text-align:center;">Línea roja punteada = límite OMS (25 g)</div>
+  </div>
+
+  <!-- Gas Simulator -->
+  <div class="block-label" style="color:#4fc3f7">🧪 Simulador de gas (Extra — Ley de Henry)</div>
+  <div class="card">
+    <p style="font-size:.83rem;color:#666;margin-bottom:20px;">A mayor temperatura, el CO₂ disuelto escapa más rápido. Modelo: <code style="background:#111;padding:2px 6px;border-radius:4px;font-size:.78rem;">Gas(t,T) = 100·e<sup>−k(T)·t</sup></code>, donde <code style="background:#111;padding:2px 6px;border-radius:4px;font-size:.78rem;">k(T) = 0.018·e<sup>0.055·(T−20)</sup></code></p>
+    <div class="grid2">
+      <div>
+        <div style="margin-bottom:20px;">
+          <label style="font-size:.82rem;color:#aaa;display:block;margin-bottom:4px;">🌡️ Temperatura: <span class="sval" id="vt">20°C</span></label>
+          <input type="range" id="sl-t" min="0" max="50" value="20" oninput="gasUpd()"/>
+          <div class="slbl"><span>0°C (nevera)</span><span>25°C (amb.)</span><span>50°C (caliente)</span></div>
+        </div>
+        <div>
+          <label style="font-size:.82rem;color:#aaa;display:block;margin-bottom:4px;">⏱️ Tiempo abierta: <span class="sval" id="vm">Recién abierta</span></label>
+          <input type="range" id="sl-m" min="0" max="120" value="0" oninput="gasUpd()"/>
+          <div class="slbl"><span>Recién abierta</span><span>1 hora</span><span>2 horas</span></div>
+        </div>
+        <div class="formula" id="gas-f" style="margin-top:16px;">—</div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:20px;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+          <svg width="58" height="140" viewBox="0 0 58 140">
+            <rect x="18" y="9" width="22" height="8" rx="3" fill="#bbb"/>
+            <path d="M11 25Q6 33 6 43L6 125Q6 135 16 135L42 135Q52 135 52 125L52 43Q52 33 47 25Z" fill="#0d1a2a" stroke="#1a3a5a" stroke-width="1.5"/>
+            <clipPath id="bc2"><path d="M11 25Q6 33 6 43L6 125Q6 135 16 135L42 135Q52 135 52 125L52 43Q52 33 47 25Z"/></clipPath>
+            <rect id="bvl" x="6" y="43" width="46" height="92" fill="#1565c0" opacity=".5" clip-path="url(#bc2)"/>
+            <g id="bbb"><circle cx="20" cy="97" r="2.5" fill="#4fc3f7" opacity=".6"/><circle cx="29" cy="79" r="2" fill="#4fc3f7" opacity=".5"/><circle cx="38" cy="107" r="3" fill="#4fc3f7" opacity=".5"/><circle cx="24" cy="65" r="1.5" fill="#4fc3f7" opacity=".4"/><circle cx="36" cy="89" r="2" fill="#4fc3f7" opacity=".6"/></g>
+            <rect x="17" y="5" width="24" height="7" rx="3" fill="#e67e22"/>
+          </svg>
+          <div style="font-size:.66rem;color:#555;">CO₂ restante</div>
+        </div>
+        <div style="flex:1;">
+          <div class="gas-pct" id="gp">100%</div>
+          <div style="font-size:.75rem;color:#666;margin-top:4px;">de carbonatación</div>
+          <div class="gas-st gst-ok" id="gs">🫧 Perfectamente carbonatada</div>
+          <div style="margin-top:10px;font-size:.78rem;color:#666;" id="gd">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── NAVIGATION ───────────────────────────────────────────────────────────────
+const PAGES = ['inicio','bio','quim','fis','sas','cs'];
+function goTo(id, btn) {
+  PAGES.forEach(p => document.getElementById('page-'+p).classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if (btn) btn.classList.add('active');
+  if (id === 'fis') initMarbles();
+  if (id === 'cs') { renderPresets(); buildCSChart(); }
+  if (id === 'inicio') buildInitCards();
+  window.scrollTo(0,0);
+}
+
+// ── INICIO CARDS ─────────────────────────────────────────────────────────────
+const SUBJECTS = [
+  {id:'bio',  icon:'🧬', name:'Biología',       color:'var(--bio)', desc:'Ósmosis y deshidratación celular con patatas'},
+  {id:'quim', icon:'⚗️', name:'Química',        color:'var(--quim)',desc:'pH y erosión del esmalte dental'},
+  {id:'fis',  icon:'⚡', name:'Física',          color:'var(--fis)', desc:'Viscosidad: canica en distintas bebidas'},
+  {id:'sas',  icon:'🌍', name:'SAS',             color:'var(--sas)', desc:'Huella hídrica y ciclo de vida del envase'},
+  {id:'cs',   icon:'💻', name:'Computer Science',color:'var(--cs)',  desc:'Semáforo nutricional interactivo'},
+];
+function buildInitCards() {
+  const g = document.getElementById('inicio-cards');
+  if (g.innerHTML) return;
+  g.innerHTML = SUBJECTS.map(s => `
+    <div class="scard" style="border-top-color:${s.color};border-color:${s.color}22" onclick="goTo('${s.id}',document.querySelector('.t-${s.id}'))">
+      <div class="icon">${s.icon}</div>
+      <h3 style="color:${s.color}">${s.name}</h3>
+      <p>${s.desc}</p>
+    </div>`).join('');
+}
+buildInitCards();
+
+// ── BIO CHART ────────────────────────────────────────────────────────────────
+const bioData = [{label:'Zumo fresa',val:1.186,col:'#e67e22'},{label:'Coca-Cola',val:1.405,col:'#e74c3c'},{label:'Beb. energética',val:2.572,col:'#9b59b6'}];
+const max1 = 3;
+document.getElementById('bio-chart').innerHTML = bioData.map(d => `
+  <div class="bar-col">
+    <div class="bar-val">${d.val} g</div>
+    <div class="bar-fill" style="height:${d.val/max1*140}px;background:${d.col}"></div>
+    <div class="bar-label">${d.label}</div>
+  </div>`).join('');
+
+// ── MARBLE SIMULATION ────────────────────────────────────────────────────────
+const MARBLES = [
+  {label:'Agua', color:'#3498db', time:0.49, ml:'~0 g/L azúcar'},
+  {label:'Zumo fresa', color:'#e67e22', time:0.61, ml:'~112 g/L azúcar'},
+  {label:'Beb. energética', color:'#9b59b6', time:0.68, ml:'~108 g/L azúcar'},
+];
+function initMarbles() {
+  const d = document.getElementById('marble-demo');
+  if (d.innerHTML) return;
+  d.innerHTML = MARBLES.map((m,i) => `
+    <div class="tube-wrap">
+      <div style="font-size:.72rem;color:#666;margin-bottom:4px;">t = ${m.time} s</div>
+      <div class="tube" id="tube${i}">
+        <div class="marble" id="marble${i}" style="background:radial-gradient(circle at 35% 35%,${m.color}aa,${m.color})"></div>
+        <div style="position:absolute;bottom:4px;left:0;right:0;height:2px;background:#333"></div>
+      </div>
+      <div class="tube-time" style="color:${m.color}">${m.time} s</div>
+      <div class="tube-label">${m.label}<br><span style="color:#555;font-size:.65rem">${m.ml}</span></div>
+    </div>`).join('');
+}
+function dropMarbles() {
+  initMarbles();
+  MARBLES.forEach((m,i) => {
+    const marble = document.getElementById('marble'+i);
+    marble.style.top = '8px';
+    marble.style.transition = 'none';
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        marble.style.transition = `top ${m.time*2}s linear`;
+        marble.style.top = '110px';
+      });
+    });
+  });
+}
+
+// ── CS PRESETS ────────────────────────────────────────────────────────────────
+const PRESETS = [
+  {n:'Coca-Cola',      ml:330, g:35,   c:'#e74c3c'},
+  {n:'Zumo fresa',     ml:250, g:28,   c:'#e67e22'},
+  {n:'Beb. energética',ml:500, g:54,   c:'#9b59b6'},
+  {n:'Red Bull',       ml:250, g:27.5, c:'#c0392b'},
+  {n:'Aquarius',       ml:500, g:15,   c:'#27ae60'},
+  {n:'Agua',           ml:500, g:0,    c:'#2980b9'},
+];
+function renderPresets() {
+  const d = document.getElementById('cs-presets');
+  if (d.innerHTML) return;
+  d.innerHTML = PRESETS.map(p => {
+    const pct = Math.round(p.g/25*100);
+    const clr = pct<=50?'var(--bio)':pct<=100?'var(--cs)':'#e74c3c';
+    return `<div class="preset-btn" onclick="loadPreset('${p.n}',${p.ml},${p.g})">
+      <div class="pname">${p.n}</div>
+      <div class="pdata">${p.ml} ml · ${p.g} g</div>
+      <span class="pbadge" style="background:${clr}18;color:${clr};border:1px solid ${clr}44">${pct}% OMS</span>
+    </div>`;
+  }).join('');
+}
+function loadPreset(n,ml,g){
+  document.getElementById('inp-n').value=n;
+  document.getElementById('inp-ml').value=ml;
+  document.getElementById('inp-g').value=g;
+  calc();
+}
+
+// ── CALCULATOR ────────────────────────────────────────────────────────────────
+const OMS=25, GC=4;
+let hist=[];
+function calc(){
+  const n = document.getElementById('inp-n').value.trim()||'Bebida';
+  const ml = parseFloat(document.getElementById('inp-ml').value);
+  const g  = parseFloat(document.getElementById('inp-g').value);
+  if(isNaN(ml)||isNaN(g)||ml<=0||g<0){alert('Introduce valores válidos.');return;}
+  const c = Math.round(g/GC*10)/10;
+  const pct = Math.round(g/OMS*100);
+  const nv = pct<=50?'v':pct<=100?'a':'r';
+  const clrs={v:'#2ecc71',a:'#f39c12',r:'#e74c3c'};
+  ['lr','la','lv'].forEach(id=>document.getElementById(id).className='luz');
+  document.getElementById(nv==='v'?'lv':nv==='a'?'la':'lr').classList.add('on-'+nv);
+  document.getElementById('cs-ph').style.display='none';
+  document.getElementById('cs-res').style.display='block';
+  document.getElementById('res-pct').textContent=pct+'%';
+  document.getElementById('res-pct').style.color=clrs[nv];
+  document.getElementById('rg').textContent=g;
+  document.getElementById('rc').textContent=c;
+  const pf=document.getElementById('prog-f');
+  pf.style.width=Math.min(pct,100)+'%';pf.style.background=clrs[nv];
+  const sg=document.getElementById('sp-grid');
+  sg.innerHTML='';
+  const cnt=Math.min(Math.ceil(c),24);
+  for(let i=0;i<cnt;i++){const s=document.createElement('span');s.style.fontSize='1.25rem';s.textContent='🥄';sg.appendChild(s);}
+  if(Math.ceil(c)>24){const s=document.createElement('span');s.style.color='#555';s.style.fontSize='.75rem';s.textContent=`+${Math.ceil(c)-24} más`;sg.appendChild(s);}
+  const ab=document.getElementById('cs-alert');
+  if(nv==='v'){ab.className='alert al-v';ab.textContent=`✅ Dentro del límite · ${g} g = ${c} cucharadas`;}
+  else if(nv==='a'){ab.className='alert al-a';ab.textContent=`⚠️ Atención · ${g} g = ${c} cucharadas. Cerca del límite.`;}
+  else{ab.className='alert al-r';ab.textContent=`🚨 ¡Cuidado! ${g} g = ${c} cucharadas. Supera el límite OMS.`;}
+  hist.push({n,ml,g,c,pct,nv}); renderHist();
+}
+function renderHist(){
+  const lista=document.getElementById('hist-list');
+  if(!hist.length){lista.innerHTML='<div class="placeholder">Aún no has añadido bebidas</div>';document.getElementById('hist-total').style.display='none';return;}
+  lista.innerHTML=hist.map(b=>`
+    <div class="hist-item hi-${b.nv}">
+      <div><div style="font-weight:700;color:#e0e0e0">${b.n}</div><div style="color:#666;font-size:.74rem">${b.ml}ml · ${b.g}g · ${b.c} cucharadas</div></div>
+      <span class="chip chip-${b.nv}">${b.pct}%</span>
+    </div>`).join('');
+  const tg=hist.reduce((s,b)=>s+b.g,0);
+  const tp=Math.round(tg/OMS*100);
+  const clrs={v:'#2ecc71',a:'#f39c12',r:'#e74c3c'};
+  const tn=tp<=50?'v':tp<=100?'a':'r';
+  document.getElementById('hist-total').style.display='block';
+  document.getElementById('tot-g').textContent=Math.round(tg*10)/10+' g';
+  const tl=document.getElementById('tot-lbl');tl.textContent=tp+'% del límite OMS';tl.style.color=clrs[tn];
+  const pt=document.getElementById('prog-tot');pt.style.width=Math.min(tp,100)+'%';pt.style.background=clrs[tn];
+}
+function clearHist(){hist=[];renderHist();}
+['inp-n','inp-ml','inp-g'].forEach(id=>document.getElementById(id).addEventListener('keydown',e=>{if(e.key==='Enter')calc();}));
+
+// ── CS CHART ──────────────────────────────────────────────────────────────────
+function buildCSChart(){
+  const d=document.getElementById('cs-chart');
+  if(d.innerHTML) return;
+  const items=[
+    {l:'Agua\n(500ml)',v:0,c:'#2980b9'},
+    {l:'Aquarius\n(500ml)',v:15,c:'#27ae60'},
+    {l:'Zumo fresa\n(250ml)',v:28,c:'#e67e22'},
+    {l:'Red Bull\n(250ml)',v:27.5,c:'#c0392b'},
+    {l:'Coca-Cola\n(330ml)',v:35,c:'#e74c3c'},
+    {l:'Beb. energética\n(500ml)',v:54,c:'#9b59b6'},
+  ];
+  const mx=60;
+  const omsH=Math.round(25/mx*140);
+  d.style.position='relative';
+  d.innerHTML=items.map(it=>`
+    <div class="bar-col" style="position:relative;">
+      <div class="bar-val">${it.v} g</div>
+      <div class="bar-fill" style="height:${it.v/mx*140}px;background:${it.c}"></div>
+      <div class="bar-label">${it.l.replace('\n','<br>')}</div>
+      ${it.v>=25?`<div style="position:absolute;top:${140-omsH+24}px;left:0;right:0;height:2px;background:#e74c3c;opacity:.5;border-top:2px dashed #e74c3c;"></div>`:''}
+    </div>`).join('');
+}
+
+// ── GAS SIM ───────────────────────────────────────────────────────────────────
+const K0=0.018,ALFA=0.055,TR=20;
+function gasCalc(T,t){return Math.max(0,100*Math.exp(-K0*Math.exp(ALFA*(T-TR))*t));}
+function gasUpd(){
+  const T=parseInt(document.getElementById('sl-t').value);
+  const m=parseInt(document.getElementById('sl-m').value);
+  document.getElementById('vt').textContent=T+'°C';
+  document.getElementById('vm').textContent=m===0?'Recién abierta':m+' min';
+  const gas=gasCalc(T,m); const k=K0*Math.exp(ALFA*(T-TR));
+  document.getElementById('gp').textContent=Math.round(gas)+'%';
+  document.getElementById('bvl').setAttribute('y',43+(100-gas)*0.92);
+  document.getElementById('bbb').setAttribute('opacity',(gas/100).toFixed(2));
+  const st=document.getElementById('gs');
+  if(gas>=70){st.className='gas-st gst-ok';st.textContent='🫧 Muy carbonatada — perfecta';}
+  else if(gas>=40){st.className='gas-st gst-mid';st.textContent='⚠️ Carbonatación moderada';}
+  else if(gas>5){st.className='gas-st gst-mid';st.textContent='😕 Poca carbonatación';}
+  else{st.className='gas-st gst-bad';st.textContent='💨 Sin gas — completamente plana';}
+  document.getElementById('gd').innerHTML=`Tasa: <strong>${(k*60).toFixed(3)}</strong> %/h · Semivida: <strong>${(Math.log(2)/k).toFixed(1)}</strong> min`;
+  document.getElementById('gas-f').textContent=`Gas(${T}°C, ${m}min) = 100 · e^(−${k.toFixed(4)} · ${m}) = ${gas.toFixed(1)}%`;
+}
+gasUpd();
+</script>
+</body>
+</html>
